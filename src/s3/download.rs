@@ -4,7 +4,7 @@ use awsregion::Region;
 use std::fs::File;
 use std::env;
 use std::io::Write;
-use actix_web::{Error, Result, error::ErrorInternalServerError};
+use actix_web::{Result, error::ErrorInternalServerError};
 
 pub async fn download_image(key: String) -> Result<String> {
   let filename = key.replace("/", "_");
@@ -13,12 +13,12 @@ pub async fn download_image(key: String) -> Result<String> {
   let region = get_env_key("AWS_REGION");
 
   if bucket_name.is_none() || region.is_none() {
-    return Err(Error::from(ErrorInternalServerError("Invalid environment variables")));
+    return Err(ErrorInternalServerError("Invalid environment variables"));
   }
 
   let aws_region: Region = match region.unwrap().parse() {
     Ok(region) => region,
-    Err(_e) => return Err(Error::from(ErrorInternalServerError("Invalid region"))),
+    Err(_e) => return Err(ErrorInternalServerError("Invalid region")),
   };
 
   let credentials = Credentials::default();
@@ -26,7 +26,7 @@ pub async fn download_image(key: String) -> Result<String> {
 
   match bucket {
     Ok(bucket) => download_from_bucket(bucket, key, filename).await,
-    Err(_e) => Err(Error::from(ErrorInternalServerError("Invalid bucket"))),
+    Err(_e) => Err(ErrorInternalServerError("Invalid bucket")),
   }
 
 }
@@ -37,7 +37,7 @@ async fn download_from_bucket(bucket: Bucket, key: String, filename: String) -> 
 
   match response_data {
     Ok(response_data) => write_file(response_data, filename).await,
-    Err(_e) => Err(Error::from(ErrorInternalServerError("Invalid response"))),
+    Err(_e) => Err(ErrorInternalServerError("Invalid response")),
   }
 }
 

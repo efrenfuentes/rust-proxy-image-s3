@@ -1,7 +1,7 @@
 mod utils;
 mod s3;
 
-use actix_web::{get, middleware::Logger, web, App, HttpServer, Result, Error, error::ErrorInternalServerError};
+use actix_web::{get, middleware::Logger, web, App, HttpServer, Result, error::ErrorInternalServerError};
 use actix_files::NamedFile;
 use serde::Deserialize;
 use env_logger::Env;
@@ -27,11 +27,11 @@ async fn image(path_info: web::Path<PathInfo>, query_info: web::Query<QueryInfo>
     let extension = Path::new(query_info.key.as_str()).extension().and_then(OsStr::to_str).unwrap_or("");
 
     if !validate_resolution(&path_info.resolution) {
-        return Err(Error::from(ErrorInternalServerError("Invalid resolution")));
+        return Err(ErrorInternalServerError("Invalid resolution"));
     }
 
     if !validate_extension(extension) {
-        return Err(Error::from(ErrorInternalServerError("Invalid extension")));
+        return Err(ErrorInternalServerError("Invalid extension"));
     }
 
     let output_file = download_image(query_info.key.clone()).await;
