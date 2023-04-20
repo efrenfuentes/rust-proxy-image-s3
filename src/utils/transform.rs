@@ -1,48 +1,44 @@
-use actix_web::{ Error, Result, error::ErrorInternalServerError };
+use actix_web::{ Result, error::ErrorInternalServerError };
 use image::imageops::FilterType;
 use actix_files::NamedFile;
 use std::fs;
 
 pub async fn transform_image(resolution: String, filename: String) -> Result<NamedFile> {
   if resolution == "original" {
-    let result = NamedFile::open(filename.clone());
-    let removed = fs::remove_file(filename);
-    match removed {
-      Ok(_file) => (),
-      Err(_e) => return Err(Error::from(ErrorInternalServerError("Invalid file"))),
-    }
-    match result {
-      Ok(file) => return Ok(file),
-      Err(_e) => return Err(Error::from(ErrorInternalServerError("Invalid file"))),
-    }
+    return serve_file(filename.clone())
   }
 
   let output_file = format!("{}_{}", resolution, filename);
   let img = image::open(filename.clone()).unwrap();
-
   let (width, height) = get_geometry(resolution);
 
   img.resize_to_fill(width, height, FilterType::Lanczos3)
     .save(output_file.clone())
     .unwrap();
 
-  let result = NamedFile::open(output_file.clone());
+  let result = serve_file(output_file);
 
-  let mut removed = fs::remove_file(filename);
+  let removed = fs::remove_file(filename);
   match removed {
     Ok(_file) => (),
-    Err(_e) => return Err(Error::from(ErrorInternalServerError("Invalid file"))),
+    Err(_e) => return Err(ErrorInternalServerError("Invalid file")),
   }
 
-  removed = fs::remove_file(output_file);
-  match removed {
-    Ok(_file) => (),
-    Err(_e) => return Err(Error::from(ErrorInternalServerError("Invalid file"))),
-  }
+  return result;
+}
 
+fn serve_file(filename: String) -> Result<NamedFile> {
+  let result = NamedFile::open(filename.clone());
   match result {
-    Ok(file) => return Ok(file),
-    Err(_e) => return Err(Error::from(ErrorInternalServerError("Invalid file"))),
+    Ok(file) => {
+      let removed = fs::remove_file(filename.clone());
+      match removed {
+        Ok(_file) => (),
+        Err(_e) => return Err(ErrorInternalServerError(format!("File not found: {}", filename))),
+      }
+      Ok(file)
+    },
+    Err(_e) => Err(ErrorInternalServerError(format!("File not found: {}", filename))),
   }
 }
 

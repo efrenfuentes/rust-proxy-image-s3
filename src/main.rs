@@ -7,7 +7,6 @@ use serde::Deserialize;
 use env_logger::Env;
 use std::path::Path;
 use std::ffi::OsStr;
-
 use utils::validations::{validate_extension, validate_resolution};
 use utils::transform::transform_image;
 use crate::s3::download::download_image;

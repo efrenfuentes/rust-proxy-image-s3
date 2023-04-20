@@ -8,7 +8,6 @@ use actix_web::{Result, error::ErrorInternalServerError};
 
 pub async fn download_image(key: String) -> Result<String> {
   let filename = key.replace("/", "_");
-
   let bucket_name = get_env_key("AWS_BUCKET");
   let region = get_env_key("AWS_REGION");
 
