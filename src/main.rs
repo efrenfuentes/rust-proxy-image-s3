@@ -19,9 +19,10 @@ struct QueryInfo {
 #[derive(Deserialize)]
 struct PathInfo {
     resolution: String,
+    bucket: String,
 }
 
-#[get("/image/{resolution}")]
+#[get("/image/{bucket}/{resolution}")]
 async fn image(path_info: web::Path<PathInfo>, query_info: web::Query<QueryInfo>) -> Result<NamedFile> {
     let extension = Path::new(query_info.key.as_str()).extension().and_then(OsStr::to_str).unwrap_or("");
 
@@ -33,7 +34,7 @@ async fn image(path_info: web::Path<PathInfo>, query_info: web::Query<QueryInfo>
         return Err(ErrorInternalServerError("Invalid extension"));
     }
 
-    let output_file = download_image(query_info.key.clone()).await;
+    let output_file = download_image(path_info.bucket.clone(), query_info.key.clone()).await;
 
     match output_file {
         Ok(output_file) => transform_image(path_info.resolution.clone(), output_file).await,

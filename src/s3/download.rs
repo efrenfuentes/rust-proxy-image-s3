@@ -6,12 +6,11 @@ use std::env;
 use std::io::Write;
 use actix_web::{Result, error::ErrorInternalServerError};
 
-pub async fn download_image(key: String) -> Result<String> {
+pub async fn download_image(bucket_name: String, key: String) -> Result<String> {
   let filename = key.replace("/", "_");
-  let bucket_name = get_env_key("AWS_BUCKET");
   let region = get_env_key("AWS_REGION");
 
-  if bucket_name.is_none() || region.is_none() {
+  if region.is_none() {
     return Err(ErrorInternalServerError("Invalid environment variables"));
   }
 
@@ -21,7 +20,7 @@ pub async fn download_image(key: String) -> Result<String> {
   };
 
   let credentials = Credentials::default();
-  let bucket = Bucket::new(bucket_name.unwrap().as_str(), aws_region, credentials.unwrap());
+  let bucket = Bucket::new(bucket_name.as_str(), aws_region, credentials.unwrap());
 
   match bucket {
     Ok(bucket) => download_from_bucket(bucket, key, filename).await,

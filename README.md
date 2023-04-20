@@ -9,16 +9,15 @@ The following environment variables are required:
 * `AWS_ACCESS_KEY_ID`
 * `AWS_SECRET_ACCESS_KEY`
 * `AWS_REGION`
-* `AWS_BUCKET`
 
 ## Usage
 
 Once up and running, you can access image files stored in the S3 bucket like so:
 
-    http://localhost:8080/image/640x640?key=image.jpg
+    http://localhost:8080/image/bucket_name/640x640?key=image.jpg
 
 The above will retrieve the image from the S3 bucket, resize it to 640x640 and serve it.
 
 If you want the original image, you can do:
 
-    http://localhost:8080/image/original?key=image.jpg
+    http://localhost:8080/image/bucket_name/original?key=image.jpg
