@@ -12,7 +12,7 @@ pub async fn transform_image(resolution: String, filename: String) -> Result<Nam
     let img = image::open(filename.clone()).unwrap();
     let (width, height) = get_geometry(resolution);
 
-    img.resize_to_fill(width, height, FilterType::Lanczos3)
+    img.resize(width, height, FilterType::Lanczos3)
         .save(output_file.clone())
         .unwrap();
 

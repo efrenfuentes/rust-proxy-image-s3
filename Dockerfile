@@ -1,4 +1,4 @@
-FROM rust:1.68
+FROM rust:1.78
 RUN apt-get clean \
   && apt-get update \
   && apt-get install -y ca-certificates tzdata \
