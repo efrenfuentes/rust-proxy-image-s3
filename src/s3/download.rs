@@ -14,8 +14,13 @@ pub async fn download_image(bucket_name: String, key: String) -> Result<String> 
         return Err(ErrorInternalServerError("Invalid environment variables"));
     }
 
+    let endpoint = format!(
+        "s3.{}.wasabisys.com",
+        region.clone().unwrap_or("".to_string())
+    );
+
     let aws_region: Region = match region.unwrap().parse() {
-        Ok(region) => region,
+        Ok(region) => Region::Custom { region, endpoint },
         Err(_e) => return Err(ErrorInternalServerError("Invalid region")),
     };
 
