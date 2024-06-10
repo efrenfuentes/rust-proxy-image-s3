@@ -2,6 +2,7 @@ use actix_web::{error::ErrorInternalServerError, Result};
 use awsregion::Region;
 use s3::bucket::Bucket;
 use s3::creds::Credentials;
+use s3::request::ResponseData;
 use std::env;
 use std::fs::File;
 use std::io::Write;
@@ -42,10 +43,7 @@ async fn download_from_bucket(bucket: Bucket, key: String, filename: String) -> 
     }
 }
 
-async fn write_file(
-    response_data: s3::request_trait::ResponseData,
-    filename: String,
-) -> Result<String> {
+async fn write_file(response_data: ResponseData, filename: String) -> Result<String> {
     let mut file = File::create(filename.clone())?;
     file.write_all(response_data.bytes())?;
 
