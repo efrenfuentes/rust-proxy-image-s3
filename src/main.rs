@@ -1,15 +1,17 @@
-mod utils;
 mod s3;
+mod utils;
 
-use actix_web::{get, middleware::Logger, web, App, HttpServer, Result, error::ErrorInternalServerError};
-use actix_files::NamedFile;
-use serde::Deserialize;
-use env_logger::Env;
-use std::path::Path;
-use std::ffi::OsStr;
-use utils::validations::{validate_extension, validate_resolution};
-use utils::transform::transform_image;
 use crate::s3::download::download_image;
+use actix_files::NamedFile;
+use actix_web::{
+    error::ErrorInternalServerError, get, middleware::Logger, web, App, HttpServer, Result,
+};
+use env_logger::Env;
+use serde::Deserialize;
+use std::ffi::OsStr;
+use std::path::Path;
+use utils::transform::transform_image;
+use utils::validations::{validate_extension, validate_resolution};
 
 #[derive(Deserialize)]
 struct QueryInfo {
@@ -23,8 +25,14 @@ struct PathInfo {
 }
 
 #[get("/image/{bucket}/{resolution}")]
-async fn image(path_info: web::Path<PathInfo>, query_info: web::Query<QueryInfo>) -> Result<NamedFile> {
-    let extension = Path::new(query_info.key.as_str()).extension().and_then(OsStr::to_str).unwrap_or("");
+async fn image(
+    path_info: web::Path<PathInfo>,
+    query_info: web::Query<QueryInfo>,
+) -> Result<NamedFile> {
+    let extension = Path::new(query_info.key.as_str())
+        .extension()
+        .and_then(OsStr::to_str)
+        .unwrap_or("");
 
     if !validate_resolution(&path_info.resolution) {
         return Err(ErrorInternalServerError("Invalid resolution"));
@@ -46,10 +54,8 @@ async fn image(path_info: web::Path<PathInfo>, query_info: web::Query<QueryInfo>
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(Env::default().default_filter_or("info"));
 
-    HttpServer::new(|| {
-        App::new().wrap(Logger::default()).service(image)
-    })
-    .bind(("0.0.0.0", 8080))?
-    .run()
-    .await
+    HttpServer::new(|| App::new().wrap(Logger::default()).service(image))
+        .bind(("0.0.0.0", 8080))?
+        .run()
+        .await
 }
